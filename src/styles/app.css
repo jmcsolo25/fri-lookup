@@ -39,6 +39,12 @@ body {
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
+.data-source-note {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+  color: #4d4d4d;
+}
+
 .form-row {
   display: flex;
   flex-direction: column;

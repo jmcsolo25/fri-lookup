@@ -89,6 +89,10 @@ export const App = () => {
       </header>
       <main>
         <LookupForm key={formKey} initialValues={createInitialValues()} loading={loading} onSubmit={handleLookup} />
+        <p className="data-source-note">
+          Risk data is fetched directly from the configured Firebase Firestore project. Deployers must publish and maintain
+          their own records—no external live feed is bundled with this app.
+        </p>
         {status === 'success' && result ? <RiskResult result={result} /> : null}
         {status !== 'success' && message ? <p className="status-message">{message}</p> : null}
         {status !== 'idle' && !loading ? (

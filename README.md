@@ -8,6 +8,14 @@ A single-purpose React + Vite application that surfaces public, read-only Flashp
 - No tracking, no analytics, no persistent client storage.
 - Diagnostics mode via `?debug=1` for troubleshooting deployments.
 - Sensible defaults and fallbacks when city/county detail is missing.
+- Transparent data provenance: every lookup pulls from your own Firestore collection—there is no bundled live dataset.
+
+## Where the data comes from
+
+This project does **not** ship with, proxy, or scrape any live Flashpoint Risk Index feed. All results come from the
+`risk_by_place_date` collection inside **your** Firebase project. You are responsible for publishing and maintaining the
+documents that power the lookup (see [Setup](#setup) step 4 and [`tools/seed-sample.md`](./tools/seed-sample.md) for an example).
+If no matching document exists, the UI will clearly state that no data is published for that place/date.
 
 ## Prerequisites
 
