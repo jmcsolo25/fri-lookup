@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flashpoint Risk Index Lookup</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --radius-lg: 24px;
+        --card-glass: rgba(255, 255, 255, 0.12);
+        --card-border: rgba(255, 255, 255, 0.35);
+        --card-highlight: rgba(255, 255, 255, 0.2);
+        --shadow-strong: 0 30px 60px rgba(15, 23, 42, 0.38);
+        --text-primary: rgba(255, 255, 255, 0.95);
+        --text-secondary: rgba(255, 255, 255, 0.78);
+        --text-muted: rgba(255, 255, 255, 0.62);
+        --alert-bg: rgba(255, 255, 255, 0.12);
+        --alert-border: rgba(255, 255, 255, 0.35);
+        --accent: #38bdf8;
+        --focus-ring: rgba(56, 189, 248, 0.45);
+        --nav-bg: rgba(15, 23, 42, 0.35);
+        --nav-border: rgba(255, 255, 255, 0.12);
+        --help-bg: rgba(255, 255, 255, 0.08);
+        --help-border: rgba(255, 255, 255, 0.35);
+        --overlay-start: rgba(15, 23, 42, 0.8);
+        --overlay-end: rgba(2, 6, 23, 0.92);
+        --overlay-accent: rgba(56, 189, 248, 0.25);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        color: var(--text-primary);
+        background: radial-gradient(circle at top left, #1f2937, #0f172a 60%, #020617);
+      }
+
+      body {
+        position: relative;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: clamp(20px, 6vw, 48px);
+        transition: background 0.6s ease;
+        overflow-x: hidden;
+        isolation: isolate;
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+      }
+
+      body::before {
+        background: url("https://upload.wikimedia.org/wikipedia/commons/a/a4/White_House_north_and_south_sides.jpg") center / cover no-repeat;
+        filter: saturate(1.05) brightness(0.55);
+        transform: scale(1.03);
+      }
+
+      body::after {
+        z-index: -1;
+        background:
+          linear-gradient(135deg, var(--overlay-start), transparent 45%, var(--overlay-end)),
+          radial-gradient(circle at top right, var(--overlay-accent), transparent 60%),
+          radial-gradient(circle at bottom left, rgba(14, 116, 144, 0.35), transparent 65%);
+        transition: background 0.6s ease;
+      }
+
+      body.low {
+        --accent: #38bdf8;
+        --focus-ring: rgba(56, 189, 248, 0.45);
+        --card-glass: rgba(14, 165, 233, 0.18);
+        --card-border: rgba(125, 211, 252, 0.45);
+        --nav-bg: rgba(14, 165, 233, 0.16);
+        --nav-border: rgba(125, 211, 252, 0.35);
+        --help-bg: rgba(14, 165, 233, 0.18);
+        --help-border: rgba(125, 211, 252, 0.45);
+        --alert-bg: rgba(56, 189, 248, 0.12);
+        --alert-border: rgba(56, 189, 248, 0.35);
+        --overlay-start: rgba(8, 47, 73, 0.85);
+        --overlay-end: rgba(2, 6, 23, 0.9);
+        --overlay-accent: rgba(56, 189, 248, 0.3);
+      }
+
+      body.elevated {
+        --accent: #f59e0b;
+        --focus-ring: rgba(245, 158, 11, 0.45);
+        --card-glass: rgba(245, 158, 11, 0.18);
+        --card-border: rgba(251, 191, 36, 0.45);
+        --nav-bg: rgba(180, 83, 9, 0.22);
+        --nav-border: rgba(251, 191, 36, 0.45);
+        --help-bg: rgba(245, 158, 11, 0.22);
+        --help-border: rgba(251, 191, 36, 0.45);
+        --alert-bg: rgba(245, 158, 11, 0.18);
+        --alert-border: rgba(251, 191, 36, 0.5);
+        --overlay-start: rgba(120, 53, 15, 0.82);
+        --overlay-end: rgba(30, 41, 59, 0.92);
+        --overlay-accent: rgba(245, 158, 11, 0.28);
+      }
+
+      body.high {
+        --accent: #f97316;
+        --focus-ring: rgba(249, 115, 22, 0.45);
+        --card-glass: rgba(249, 115, 22, 0.18);
+        --card-border: rgba(251, 146, 60, 0.45);
+        --nav-bg: rgba(234, 88, 12, 0.22);
+        --nav-border: rgba(251, 146, 60, 0.45);
+        --help-bg: rgba(249, 115, 22, 0.22);
+        --help-border: rgba(251, 146, 60, 0.45);
+        --alert-bg: rgba(249, 115, 22, 0.18);
+        --alert-border: rgba(251, 146, 60, 0.5);
+        --overlay-start: rgba(124, 45, 18, 0.82);
+        --overlay-end: rgba(17, 24, 39, 0.92);
+        --overlay-accent: rgba(249, 115, 22, 0.3);
+      }
+
+      body.critical {
+        --accent: #f43f5e;
+        --focus-ring: rgba(244, 63, 94, 0.45);
+        --card-glass: rgba(244, 63, 94, 0.18);
+        --card-border: rgba(248, 113, 113, 0.45);
+        --nav-bg: rgba(244, 63, 94, 0.2);
+        --nav-border: rgba(252, 165, 165, 0.5);
+        --help-bg: rgba(244, 63, 94, 0.24);
+        --help-border: rgba(252, 165, 165, 0.55);
+        --alert-bg: rgba(244, 63, 94, 0.22);
+        --alert-border: rgba(248, 113, 113, 0.55);
+        --overlay-start: rgba(127, 29, 29, 0.86);
+        --overlay-end: rgba(17, 24, 39, 0.94);
+        --overlay-accent: rgba(244, 63, 94, 0.35);
+      }
+
+      body.critical::after {
+        animation: overlayPulse 7s ease-in-out infinite;
+      }
+
+      .page-wrapper {
+        width: min(960px, 100%);
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .top-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 22px;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), transparent), var(--nav-bg);
+        border-radius: 18px;
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--nav-border);
+        box-shadow: 0 18px 40px rgba(2, 6, 23, 0.45);
+      }
+
+      .top-nav h1 {
+        margin: 0;
+        font-size: clamp(1.25rem, 2.4vw, 1.65rem);
+        letter-spacing: 0.02em;
+        font-weight: 600;
+        text-shadow: 0 4px 16px rgba(15, 23, 42, 0.55);
+      }
+
+      .help-button {
+        border: 1px solid var(--help-border);
+        border-radius: 999px;
+        padding: 9px 16px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0)), var(--help-bg);
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+
+      .help-button span[aria-hidden="true"] {
+        font-size: 1.05rem;
+        line-height: 1;
+      }
+
+      .help-button:hover,
+      .help-button:focus-visible {
+        background: rgba(255, 255, 255, 0.22);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.35);
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      .app-card {
+        position: relative;
+        background: var(--card-glass);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-lg);
+        padding: clamp(24px, 5vw, 40px);
+        backdrop-filter: blur(24px);
+        box-shadow: var(--shadow-strong);
+        overflow: hidden;
+      }
+
+      .app-card::before {
+        content: "";
+        position: absolute;
+        inset: 1px;
+        border-radius: calc(var(--radius-lg) - 4px);
+        background: linear-gradient(140deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .app-card > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      body.critical .app-card {
+        border-top: 3px solid rgba(244, 63, 94, 0.8);
+        animation: pulseGlow 3.5s ease-in-out infinite;
+      }
+
+      @keyframes pulseGlow {
+        0% {
+          box-shadow: var(--shadow-strong);
+        }
+        50% {
+          box-shadow: 0 40px 90px rgba(244, 63, 94, 0.55);
+        }
+        100% {
+          box-shadow: var(--shadow-strong);
+        }
+      }
+
+      @keyframes overlayPulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.9;
+          transform: scale(1.02);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .help-button,
+        button#check,
+        .segment,
+        .segment::after,
+        body.critical .app-card,
+        body.critical::after {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+
+      form {
+        display: grid;
+        gap: 18px;
+      }
+
+      .field-group {
+        display: grid;
+        gap: 6px;
+      }
+
+      label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--text-secondary);
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(15, 23, 42, 0.55);
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: border 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        backdrop-filter: blur(8px);
+      }
+
+      input:hover,
+      select:hover {
+        background: rgba(15, 23, 42, 0.62);
+        border-color: rgba(255, 255, 255, 0.35);
+      }
+
+      input:focus-visible,
+      select:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+        box-shadow: 0 0 0 4px var(--focus-ring);
+      }
+
+      button#check {
+        margin-top: 4px;
+        padding: 14px 18px;
+        border-radius: 14px;
+        border: none;
+        background: linear-gradient(135deg, var(--accent), rgba(255, 255, 255, 0.25));
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+        box-shadow: 0 22px 40px rgba(2, 6, 23, 0.45);
+        letter-spacing: 0.02em;
+      }
+
+      button#check:hover,
+      button#check:active {
+        transform: translateY(-2px);
+        box-shadow: 0 26px 46px rgba(2, 6, 23, 0.5);
+        filter: brightness(1.05);
+      }
+
+      button#check:disabled {
+        cursor: progress;
+        opacity: 0.7;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .result-header {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .score-display {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+      }
+
+      #bigscore {
+        font-size: clamp(3.25rem, 7vw, 4.5rem);
+        font-weight: 700;
+        line-height: 1;
+        text-shadow: 0 12px 32px rgba(15, 23, 42, 0.65);
+      }
+
+      #band {
+        font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--accent);
+        text-shadow: 0 6px 20px rgba(15, 23, 42, 0.6);
+      }
+
+      #barfill {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+        gap: 6px;
+        background: rgba(15, 23, 42, 0.45);
+        padding: 12px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(12px);
+      }
+
+      .segment {
+        position: relative;
+        height: 16px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        overflow: hidden;
+        transform: scaleX(0.9);
+        transform-origin: center;
+        opacity: 0.35;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+      }
+
+      .segment::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: var(--accent);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+        box-shadow: 0 10px 18px rgba(15, 23, 42, 0.35);
+      }
+
+      .segment.filled {
+        opacity: 1;
+        transform: scaleX(1);
+        box-shadow: 0 10px 20px rgba(2, 6, 23, 0.35);
+      }
+
+      .segment.filled::after {
+        transform: scaleX(1);
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+      }
+
+      .legend-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: #0f172a;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
+      }
+
+      .legend-badge::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .badge-low {
+        color: #0f172a;
+        background: rgba(56, 189, 248, 0.85);
+      }
+
+      .badge-elevated {
+        color: #0f172a;
+        background: rgba(245, 158, 11, 0.85);
+      }
+
+      .badge-high {
+        color: #0f172a;
+        background: rgba(249, 115, 22, 0.85);
+      }
+
+      .badge-critical {
+        color: #0f172a;
+        background: rgba(244, 63, 94, 0.88);
+      }
+
+      #advisory {
+        margin-top: 22px;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--text-secondary);
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.35));
+        border-radius: 16px;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 18px 38px rgba(2, 6, 23, 0.4);
+      }
+
+      #alert {
+        margin-top: 16px;
+        border-radius: 14px;
+        padding: 12px 16px;
+        background: var(--alert-bg);
+        border: 1px solid var(--alert-border);
+        color: var(--text-primary);
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        box-shadow: 0 18px 32px rgba(2, 6, 23, 0.35);
+        position: relative;
+      }
+
+      #alert > div {
+        flex: 1;
+      }
+
+      #alert[hidden] {
+        display: none !important;
+      }
+
+      #alert::before {
+        content: "!";
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #0f172a;
+        font-weight: 700;
+        flex-shrink: 0;
+        margin-top: 2px;
+        box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.6);
+      }
+
+      .alert-dismiss {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 4px;
+        align-self: center;
+      }
+
+      .alert-dismiss:hover,
+      .alert-dismiss:focus-visible {
+        color: var(--text-primary);
+        outline: 2px solid var(--accent);
+        border-radius: 50%;
+      }
+
+      .meta {
+        margin-top: 12px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .diagnostics {
+        margin-top: 24px;
+        padding: 18px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        display: none;
+      }
+
+      .diagnostics pre {
+        white-space: pre-wrap;
+        margin: 0;
+      }
+
+      .diagnostics button {
+        margin-top: 12px;
+        align-self: flex-start;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        padding: 8px 12px;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: background 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 12px 24px rgba(2, 6, 23, 0.35);
+      }
+
+      .diagnostics button:hover,
+      .diagnostics button:focus-visible {
+        background: rgba(255, 255, 255, 0.22);
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      .help-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: linear-gradient(135deg, rgba(2, 6, 23, 0.75), rgba(15, 23, 42, 0.65));
+        backdrop-filter: blur(18px);
+        z-index: 1000;
+      }
+
+      .help-modal[aria-hidden="false"] {
+        display: flex;
+      }
+
+      .help-modal-content {
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.82));
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        padding: 28px;
+        width: min(480px, 100%);
+        color: var(--text-secondary);
+        position: relative;
+        box-shadow: 0 30px 60px rgba(15, 23, 42, 0.55);
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.25rem;
+        cursor: pointer;
+      }
+
+      .modal-close:hover,
+      .modal-close:focus-visible {
+        color: var(--text-primary);
+        outline: 2px solid var(--accent);
+        border-radius: 50%;
+      }
+
+      @media (min-width: 720px) {
+        form {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 20px 24px;
+        }
+
+        .field-group.full {
+          grid-column: 1 / -1;
+        }
+
+        .result-header {
+          flex-direction: row;
+          align-items: flex-end;
+          justify-content: space-between;
+        }
+      }
+
+      @media (max-width: 540px) {
+        .top-nav {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .help-button {
+          align-self: flex-end;
+        }
+      }
+    </style>
+  </head>
+  <body class="low">
+    <div class="page-wrapper">
+      <header class="top-nav">
+        <h1>Flashpoint Risk Index (FRI)</h1>
+        <button
+          type="button"
+          id="helpButton"
+          class="help-button"
+          aria-haspopup="dialog"
+          aria-controls="helpModal"
+          aria-expanded="false"
+        >
+          <span aria-hidden="true">❓</span>
+          <span>Help</span>
+        </button>
+      </header>
+
+      <main class="app-card" aria-live="polite">
+        <form id="lookupForm" novalidate>
+          <div class="field-group">
+            <label for="date">Date</label>
+            <input id="date" name="date" type="date" required />
+          </div>
+          <div class="field-group">
+            <label for="state">State</label>
+            <select id="state" name="state" required></select>
+          </div>
+          <div class="field-group full">
+            <label for="city">City or County (optional)</label>
+            <input id="city" name="city" type="text" placeholder="e.g., Webster" />
+          </div>
+          <div class="field-group full">
+            <button id="check" type="submit">Check Risk</button>
+          </div>
+        </form>
+
+        <div id="alert" role="alert" hidden>
+          <div>
+            <strong>No data published for that place/date.</strong>
+            <div class="meta">Try a nearby city or remove the city filter to check statewide data.</div>
+          </div>
+          <button type="button" class="alert-dismiss" aria-label="Dismiss alert">✕</button>
+        </div>
+
+        <div class="result-header">
+          <div class="score-display">
+            <div id="bigscore" aria-live="polite">0</div>
+            <div id="band">Low</div>
+          </div>
+        </div>
+
+        <div id="barfill" aria-hidden="true"></div>
+
+        <div class="legend" aria-hidden="true">
+          <span class="legend-badge badge-low">Low</span>
+          <span class="legend-badge badge-elevated">Elevated</span>
+          <span class="legend-badge badge-high">High</span>
+          <span class="legend-badge badge-critical">Critical</span>
+        </div>
+
+        <section id="advisory" aria-live="polite">Normal conditions. Know your route; buddy up.</section>
+
+        <section class="diagnostics" id="diagnostics" aria-live="polite">
+          <h2 style="margin-top: 0; font-size: 1.1rem; font-weight: 600; color: var(--text-secondary)">
+            Diagnostics
+          </h2>
+          <pre id="diagnosticsContent"></pre>
+          <button type="button" id="copyDebug">Copy Debug Snapshot</button>
+        </section>
+      </main>
+    </div>
+
+    <div class="help-modal" id="helpModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="helpTitle">
+      <div class="help-modal-content" tabindex="-1">
+        <button type="button" class="modal-close" id="helpClose" aria-label="Close help">✕</button>
+        <h2 id="helpTitle" style="margin-top: 0; color: var(--text-primary); font-size: 1.4rem;">How the lookup works</h2>
+        <p>
+          Enter a date, choose a state, and optionally add a city or county. The lookup fetches the matching
+          Flashpoint Risk Index record from the <strong>public, read-only Firestore JSON snapshot</strong> you host at
+          <code>/risk/</code>.
+        </p>
+        <p>
+          Scores map to bands as follows: 0–2 Low, 3–5 Elevated, 6–8 High, 9–10 Critical. Each band loads a ready-made
+          safety checklist unless the record includes a specific advisory message.
+        </p>
+        <p>
+          To troubleshoot, append <code>?debug=1</code> to the page URL to show diagnostics with the last fetch details.
+        </p>
+      </div>
+    </div>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

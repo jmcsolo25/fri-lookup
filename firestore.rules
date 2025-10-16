@@ -1,0 +1,10 @@
+// Firestore rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /risk_by_place_date/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
