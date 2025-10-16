@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flashpoint Risk Index (FRI)</title>
+</head>
+<body>
+  <h1>Flashpoint Risk Index (FRI)</h1>
+  <p>Harm-reduction gauge for situational awareness. No tracking. No predictions.</p>
+
+  <label>Date: <input type="date" id="date"></label>
+  <label>State: <input type="text" id="state" placeholder="FL"></label>
+  <label>City/County (optional): <input type="text" id="city" placeholder="Webster"></label>
+  <button id="check">Check Risk</button>
+
+  <h2 id="output"></h2>
+  <p id="advisory"></p>
+
+  <script src="app.js"></script>
+</body>
+</html>
