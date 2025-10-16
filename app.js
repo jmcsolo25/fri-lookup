@@ -58,6 +58,9 @@ const defaultAdvisories = {
   Critical: "Tight comms; buffers; livestream updates; legal observers visible.",
 };
 
+const reduceMotionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
+let prefersReducedMotion = reduceMotionMedia.matches;
+
 const diagnosticsState = {
   enabled: new URLSearchParams(window.location.search).get("debug") === "1",
   lastQuery: null,
@@ -71,6 +74,23 @@ let gaugeTimeouts = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   cacheElements();
+  const refreshGaugeInstantly = () => {
+    if (!elements.bigscore || !elements.barfill) {
+      return;
+    }
+    fillGauge(Number(elements.bigscore.textContent) || 0);
+  };
+  if (typeof reduceMotionMedia.addEventListener === "function") {
+    reduceMotionMedia.addEventListener("change", (event) => {
+      prefersReducedMotion = event.matches;
+      refreshGaugeInstantly();
+    });
+  } else if (typeof reduceMotionMedia.addListener === "function") {
+    reduceMotionMedia.addListener((event) => {
+      prefersReducedMotion = event.matches;
+      refreshGaugeInstantly();
+    });
+  }
   populateStates();
   setDefaultDate();
   hydrateGauge();
@@ -261,6 +281,15 @@ function fillGauge(score) {
   segments.forEach((segment) => {
     segment.classList.remove("filled");
   });
+
+  if (prefersReducedMotion) {
+    for (let i = 0; i < score; i += 1) {
+      const segment = segments[i];
+      if (!segment) break;
+      segment.classList.add("filled");
+    }
+    return;
+  }
 
   for (let i = 0; i < score; i += 1) {
     const segment = segments[i];

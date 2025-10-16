@@ -18,6 +18,10 @@
         --alert-border: rgba(255, 255, 255, 0.35);
         --accent: #38bdf8;
         --focus-ring: rgba(56, 189, 248, 0.45);
+        --nav-bg: rgba(15, 23, 42, 0.35);
+        --nav-border: rgba(255, 255, 255, 0.12);
+        --help-bg: rgba(255, 255, 255, 0.08);
+        --help-border: rgba(255, 255, 255, 0.35);
       }
 
       * {
@@ -44,24 +48,56 @@
       body.low {
         --accent: #38bdf8;
         --focus-ring: rgba(56, 189, 248, 0.45);
+        --card-glass: rgba(14, 165, 233, 0.18);
+        --card-border: rgba(125, 211, 252, 0.45);
+        --nav-bg: rgba(14, 165, 233, 0.16);
+        --nav-border: rgba(125, 211, 252, 0.35);
+        --help-bg: rgba(14, 165, 233, 0.18);
+        --help-border: rgba(125, 211, 252, 0.45);
+        --alert-bg: rgba(56, 189, 248, 0.12);
+        --alert-border: rgba(56, 189, 248, 0.35);
         background: radial-gradient(circle at top left, #0ea5e9, #0f172a 70%, #020617);
       }
 
       body.elevated {
         --accent: #f59e0b;
         --focus-ring: rgba(245, 158, 11, 0.45);
+        --card-glass: rgba(245, 158, 11, 0.18);
+        --card-border: rgba(251, 191, 36, 0.45);
+        --nav-bg: rgba(180, 83, 9, 0.22);
+        --nav-border: rgba(251, 191, 36, 0.45);
+        --help-bg: rgba(245, 158, 11, 0.22);
+        --help-border: rgba(251, 191, 36, 0.45);
+        --alert-bg: rgba(245, 158, 11, 0.18);
+        --alert-border: rgba(251, 191, 36, 0.5);
         background: radial-gradient(circle at top left, #f59e0b, #7c2d12 60%, #1f2937);
       }
 
       body.high {
         --accent: #f97316;
         --focus-ring: rgba(249, 115, 22, 0.45);
+        --card-glass: rgba(249, 115, 22, 0.18);
+        --card-border: rgba(251, 146, 60, 0.45);
+        --nav-bg: rgba(234, 88, 12, 0.22);
+        --nav-border: rgba(251, 146, 60, 0.45);
+        --help-bg: rgba(249, 115, 22, 0.22);
+        --help-border: rgba(251, 146, 60, 0.45);
+        --alert-bg: rgba(249, 115, 22, 0.18);
+        --alert-border: rgba(251, 146, 60, 0.5);
         background: radial-gradient(circle at top left, #fb923c, #7c2d12 60%, #111827);
       }
 
       body.critical {
         --accent: #f43f5e;
         --focus-ring: rgba(244, 63, 94, 0.45);
+        --card-glass: rgba(244, 63, 94, 0.18);
+        --card-border: rgba(248, 113, 113, 0.45);
+        --nav-bg: rgba(244, 63, 94, 0.2);
+        --nav-border: rgba(252, 165, 165, 0.5);
+        --help-bg: rgba(244, 63, 94, 0.24);
+        --help-border: rgba(252, 165, 165, 0.55);
+        --alert-bg: rgba(244, 63, 94, 0.22);
+        --alert-border: rgba(248, 113, 113, 0.55);
         background: radial-gradient(circle at top left, #f43f5e, #7f1d1d 60%, #111827);
       }
 
@@ -77,10 +113,10 @@
         align-items: center;
         justify-content: space-between;
         padding: 12px 20px;
-        background: rgba(15, 23, 42, 0.35);
+        background: var(--nav-bg);
         border-radius: 18px;
         backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        border: 1px solid var(--nav-border);
         box-shadow: 0 18px 30px rgba(2, 6, 23, 0.35);
       }
 
@@ -92,10 +128,10 @@
       }
 
       .help-button {
-        border: 1px solid rgba(255, 255, 255, 0.35);
+        border: 1px solid var(--help-border);
         border-radius: 999px;
         padding: 8px 14px;
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--help-bg);
         color: var(--text-primary);
         font-size: 0.9rem;
         display: inline-flex;
@@ -107,7 +143,7 @@
 
       .help-button:hover,
       .help-button:focus-visible {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.22);
         transform: translateY(-1px);
         box-shadow: 0 10px 20px rgba(15, 23, 42, 0.35);
         outline: 2px solid var(--accent);
@@ -139,6 +175,17 @@
         }
         100% {
           box-shadow: var(--shadow-strong);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .help-button,
+        button#check,
+        .segment,
+        .segment::after,
+        body.critical .app-card {
+          transition: none !important;
+          animation: none !important;
         }
       }
 
